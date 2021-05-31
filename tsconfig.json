@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true
+    },
+    "files": [
+      "myapp.ts"
+    ]
+    }
