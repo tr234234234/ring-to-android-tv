@@ -145,6 +145,30 @@ console.log('Getting API status...');
 })
 }
 
+async function postServiceCmd() {
+  const options = {
+    method: "POST",
+    url: "http://supervisor/core/api/services/script/turn_on",
+    headers: {
+        "Authorization": `Bearer ${SUPERVISOR_TOKEN}`,
+        "content-type": 'application/json'
+    },
+    json: {
+      "entity_id": "script.test_script"
+    }
+}
+console.log('Executing test script...');
+ request(options, function (err, res, body) {
+  if(err) {
+      console.log(`[ERROR] Error getting status: `)
+      console.log(err)
+  } else {
+      console.log(`Sent notification successfully: ${body}`)
+  }
+})
+}
+
+
 /**
  * Sends a notification to PiPup app on Android TV.
  * @param {*} title Title of notification message.
@@ -397,6 +421,7 @@ async function runMain () {
   }
   else {
     await getApiStatus();
+    await postServiceCmd();
     await connectToRing();
     camera = await getCamera();
 
