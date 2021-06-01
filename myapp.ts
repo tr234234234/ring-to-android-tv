@@ -134,6 +134,7 @@ async function getApiStatus() {
         "content-type": 'application/json'
     }
 }
+console.log('Getting API status...');
  request(options, function (err, res, body) {
   if(err) {
       console.log(`[ERROR] Error getting status: `)
