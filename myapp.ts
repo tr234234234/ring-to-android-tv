@@ -17,6 +17,7 @@ const displayTime = process.env.R2ATV_DISPLAY_TIME || 12    // Display time for 
 const sendDingNotification =  process.env.SEND_DING_NOTIFICTION || true
 const sendMotionNotification = process.env.SEND_MOTION_NOTIFICAION || true
 const sendLiveSteamNotification =  process.env.SEND_LIVESTREAM_NOTIFICATION || true
+const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 
 var chosenCamera = CAMERA_NAME;
 
@@ -123,6 +124,25 @@ function timeStamp() {
     // Return the formatted string
     return dateYearStr + "-" + dateMonthStr + "-" + dateDayStr + "_" + dateHoursStr + "-" + dateMinutesStr + "-" + dateSecondsStr ;
   }
+
+async function getApiStatus() {
+  const options = {
+    method: "GET",
+    url: "http://supervisor/core/api/discovery_info",
+    headers: {
+        "Authorization": `Bearer ${SUPERVISOR_TOKEN}`,
+        "content-type": 'application/json'
+    }
+}
+ request(options, function (err, res, body) {
+  if(err) {
+      console.log(`[ERROR] Error getting status: `)
+      console.log(err)
+  } else {
+      console.log(`Sent notification successfully: ${body}`)
+  }
+})
+}
 
 /**
  * Sends a notification to PiPup app on Android TV.
@@ -375,6 +395,7 @@ async function runMain () {
     process.exit()
   }
   else {
+    await getApiStatus();
     await connectToRing();
     camera = await getCamera();
 
