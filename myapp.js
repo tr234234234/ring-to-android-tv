@@ -51,6 +51,7 @@ var displayTime = process.env.R2ATV_DISPLAY_TIME || 12; // Display time for noti
 var sendDingNotification = process.env.SEND_DING_NOTIFICTION || true;
 var sendMotionNotification = process.env.SEND_MOTION_NOTIFICAION || true;
 var sendLiveSteamNotification = process.env.SEND_LIVESTREAM_NOTIFICATION || true;
+var SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
 var chosenCamera = CAMERA_NAME;
 var ringApi;
 var camera;
@@ -173,6 +174,32 @@ function timeStamp() {
     }
     // Return the formatted string
     return dateYearStr + "-" + dateMonthStr + "-" + dateDayStr + "_" + dateHoursStr + "-" + dateMinutesStr + "-" + dateSecondsStr;
+}
+function getApiStatus() {
+    return __awaiter(this, void 0, void 0, function () {
+        var options;
+        return __generator(this, function (_a) {
+            options = {
+                method: "GET",
+                url: "http://supervisor/core/api/discovery_info",
+                headers: {
+                    "Authorization": "Bearer " + SUPERVISOR_TOKEN,
+                    "content-type": 'application/json'
+                }
+            };
+            console.log('Getting API status...');
+            request(options, function (err, res, body) {
+                if (err) {
+                    console.log("[ERROR] Error getting status: ");
+                    console.log(err);
+                }
+                else {
+                    console.log("Sent notification successfully: " + body);
+                }
+            });
+            return [2 /*return*/];
+        });
+    });
 }
 /**
  * Sends a notification to PiPup app on Android TV.
@@ -469,28 +496,31 @@ function runMain() {
                     if (!(!('RING_REFRESH_TOKEN' in process.env) || !('RING_PORT' in process.env) || !('CAMERA_NAME' in process.env))) return [3 /*break*/, 1];
                     console.log('Missing environment variables. Check RING_REFRESH_TOKEN, RING_PORT and CAMERA_NAME are set.');
                     process.exit();
-                    return [3 /*break*/, 8];
-                case 1: return [4 /*yield*/, connectToRing()];
+                    return [3 /*break*/, 9];
+                case 1: return [4 /*yield*/, getApiStatus()];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, getCamera()];
+                    return [4 /*yield*/, connectToRing()];
                 case 3:
+                    _a.sent();
+                    return [4 /*yield*/, getCamera()];
+                case 4:
                     camera = _a.sent();
                     publicOutputDirectory = path.join('public/');
                     console.log('output directory: ' + publicOutputDirectory);
                     return [4 /*yield*/, util_1.promisify(fs.exists)(publicOutputDirectory)];
-                case 4:
-                    if (!!(_a.sent())) return [3 /*break*/, 6];
-                    return [4 /*yield*/, util_1.promisify(fs.mkdir)(publicOutputDirectory)];
                 case 5:
+                    if (!!(_a.sent())) return [3 /*break*/, 7];
+                    return [4 /*yield*/, util_1.promisify(fs.mkdir)(publicOutputDirectory)];
+                case 6:
                     _a.sent();
-                    _a.label = 6;
-                case 6: return [4 /*yield*/, startHttpServer()];
-                case 7:
+                    _a.label = 7;
+                case 7: return [4 /*yield*/, startHttpServer()];
+                case 8:
                     _a.sent();
                     startCameraPolling(true);
-                    _a.label = 8;
-                case 8: return [2 /*return*/];
+                    _a.label = 9;
+                case 9: return [2 /*return*/];
             }
         });
     });
