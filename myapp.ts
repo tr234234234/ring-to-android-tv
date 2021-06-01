@@ -168,6 +168,29 @@ console.log('Sending front door motion event...');
 })
 }
 
+async function postDoorbellEvent() {
+  const options = {
+    method: "POST",
+    url: "http://supervisor/core/api/services/script/turn_on",
+    headers: {
+        "Authorization": `Bearer ${SUPERVISOR_TOKEN}`,
+        "content-type": 'application/json'
+    },
+    json: {
+      "entity_id": "script.front_door_doorbell_event"
+    }
+}
+console.log('Sending front door doorbell event...');
+ request(options, function (err, res, body) {
+  if(err) {
+      console.log(`[ERROR] Error sending front door doorbell event: `)
+      console.log(err)
+  } else {
+      console.log(`Sent front door doorbell event: ${body}`)
+  }
+})
+}
+
 
 /**
  * Sends a notification to PiPup app on Android TV.
@@ -279,6 +302,7 @@ async function startCameraPolling(notifyOnStart) {
                               break
                             case "ding":
                               if(sendDingNotification) sendNotification(notifyTitle, notifyMessage, filename);
+                              postDoorbellEvent();
                               break
                             default:
                               if(sendLiveSteamNotification) sendNotification(notifyTitle, notifyMessage, filename);
