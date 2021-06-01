@@ -201,7 +201,7 @@ function getApiStatus() {
         });
     });
 }
-function postServiceCmd() {
+function postMotionEvent() {
     return __awaiter(this, void 0, void 0, function () {
         var options;
         return __generator(this, function (_a) {
@@ -213,17 +213,17 @@ function postServiceCmd() {
                     "content-type": 'application/json'
                 },
                 json: {
-                    "entity_id": "script.test_script"
+                    "entity_id": "script.front_door_motion_event"
                 }
             };
-            console.log('Executing test script...');
+            console.log('Sending front door motion event...');
             request(options, function (err, res, body) {
                 if (err) {
-                    console.log("[ERROR] Error getting status: ");
+                    console.log("[ERROR] Error sending front door motion event: ");
                     console.log(err);
                 }
                 else {
-                    console.log("Sent notification successfully: " + body);
+                    console.log("Sent front door motion event: " + body);
                 }
             });
             return [2 /*return*/];
@@ -347,6 +347,7 @@ function startCameraPolling(notifyOnStart) {
                                                 case "motion":
                                                     if (sendMotionNotification)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
+                                                    postMotionEvent();
                                                     break;
                                                 case "ding":
                                                     if (sendDingNotification)
@@ -525,34 +526,28 @@ function runMain() {
                     if (!(!('RING_REFRESH_TOKEN' in process.env) || !('RING_PORT' in process.env) || !('CAMERA_NAME' in process.env))) return [3 /*break*/, 1];
                     console.log('Missing environment variables. Check RING_REFRESH_TOKEN, RING_PORT and CAMERA_NAME are set.');
                     process.exit();
-                    return [3 /*break*/, 10];
-                case 1: return [4 /*yield*/, getApiStatus()];
+                    return [3 /*break*/, 8];
+                case 1: return [4 /*yield*/, connectToRing()];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, postServiceCmd()];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, connectToRing()];
-                case 4:
-                    _a.sent();
                     return [4 /*yield*/, getCamera()];
-                case 5:
+                case 3:
                     camera = _a.sent();
                     publicOutputDirectory = path.join('public/');
                     console.log('output directory: ' + publicOutputDirectory);
                     return [4 /*yield*/, util_1.promisify(fs.exists)(publicOutputDirectory)];
-                case 6:
-                    if (!!(_a.sent())) return [3 /*break*/, 8];
+                case 4:
+                    if (!!(_a.sent())) return [3 /*break*/, 6];
                     return [4 /*yield*/, util_1.promisify(fs.mkdir)(publicOutputDirectory)];
+                case 5:
+                    _a.sent();
+                    _a.label = 6;
+                case 6: return [4 /*yield*/, startHttpServer()];
                 case 7:
                     _a.sent();
-                    _a.label = 8;
-                case 8: return [4 /*yield*/, startHttpServer()];
-                case 9:
-                    _a.sent();
                     startCameraPolling(true);
-                    _a.label = 10;
-                case 10: return [2 /*return*/];
+                    _a.label = 8;
+                case 8: return [2 /*return*/];
             }
         });
     });
