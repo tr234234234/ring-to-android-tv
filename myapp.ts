@@ -145,7 +145,7 @@ console.log('Getting API status...');
 })
 }
 
-async function postServiceCmd() {
+async function postMotionEvent() {
   const options = {
     method: "POST",
     url: "http://supervisor/core/api/services/script/turn_on",
@@ -154,16 +154,16 @@ async function postServiceCmd() {
         "content-type": 'application/json'
     },
     json: {
-      "entity_id": "script.test_script"
+      "entity_id": "script.front_door_motion_event"
     }
 }
-console.log('Executing test script...');
+console.log('Sending front door motion event...');
  request(options, function (err, res, body) {
   if(err) {
-      console.log(`[ERROR] Error getting status: `)
+      console.log(`[ERROR] Error sending front door motion event: `)
       console.log(err)
   } else {
-      console.log(`Sent notification successfully: ${body}`)
+      console.log(`Sent front door motion event: ${body}`)
   }
 })
 }
@@ -275,6 +275,7 @@ async function startCameraPolling(notifyOnStart) {
                           switch(ding.kind) {
                             case "motion":
                               if(sendMotionNotification) sendNotification(notifyTitle, notifyMessage, filename);
+                              postMotionEvent();
                               break
                             case "ding":
                               if(sendDingNotification) sendNotification(notifyTitle, notifyMessage, filename);
@@ -420,8 +421,6 @@ async function runMain () {
     process.exit()
   }
   else {
-    await getApiStatus();
-    await postServiceCmd();
     await connectToRing();
     camera = await getCamera();
 
