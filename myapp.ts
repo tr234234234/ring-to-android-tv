@@ -8,7 +8,8 @@ const fs = require('fs'),
   path = require('path'),
   http = require('http'),
   url = require('url'),
-  request = require('request')
+  request = require('request'),
+  findRemoveSync = require('find-remove')
  
 const PORT = process.env.RING_PORT;
 const CAMERA_NAME = process.env.CAMERA_NAME;
@@ -445,6 +446,7 @@ async function runMain () {
     process.exit()
   }
   else {
+    
     await connectToRing();
     camera = await getCamera();
 
@@ -454,7 +456,9 @@ async function runMain () {
     if (!(await promisify(fs.exists)(publicOutputDirectory))) {
       await promisify(fs.mkdir)(publicOutputDirectory)
     }
-    
+    const result = findRemoveSync(__dirname + '/' +publicOutputDirectory, {extensions: ['.png'], ignore: 'error.png'});
+    console.log('Deleted the files: ' + result)
+
     await startHttpServer();
     startCameraPolling(true);
   }

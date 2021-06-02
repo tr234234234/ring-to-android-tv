@@ -43,7 +43,7 @@ require("dotenv/config");
 var ring_client_api_1 = require("ring-client-api");
 var util_1 = require("util");
 var jimp_1 = __importDefault(require("jimp"));
-var fs = require('fs'), path = require('path'), http = require('http'), url = require('url'), request = require('request');
+var fs = require('fs'), path = require('path'), http = require('http'), url = require('url'), request = require('request'), findRemoveSync = require('find-remove');
 var PORT = process.env.RING_PORT;
 var CAMERA_NAME = process.env.CAMERA_NAME;
 var tvIpAddress = process.env.R2ATV_IP_ADDRESS; // IP address of the Android TV you are running PiPup on
@@ -550,6 +550,7 @@ function startHttpServer() {
 }
 function runMain() {
     return __awaiter(this, void 0, void 0, function () {
+        var result;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -572,7 +573,10 @@ function runMain() {
                 case 5:
                     _a.sent();
                     _a.label = 6;
-                case 6: return [4 /*yield*/, startHttpServer()];
+                case 6:
+                    result = findRemoveSync(__dirname + '/' + publicOutputDirectory, { extensions: ['.png'], ignore: 'err.png' });
+                    console.log('Deleted the files: ' + result);
+                    return [4 /*yield*/, startHttpServer()];
                 case 7:
                     _a.sent();
                     startCameraPolling(true);
