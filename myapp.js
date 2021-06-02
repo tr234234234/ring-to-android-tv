@@ -425,7 +425,7 @@ function startHttpServer() {
         return __generator(this, function (_a) {
             server = http.createServer(function (req, res) {
                 return __awaiter(this, void 0, void 0, function () {
-                    var uri, snapshotBuffer, e_2, filename;
+                    var uri, snapshotBuffer, e_2, result, filename;
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
@@ -508,6 +508,14 @@ function startHttpServer() {
                                 return [3 /*break*/, 4];
                             case 4: return [2 /*return*/];
                             case 5:
+                                if (uri == '/deleteimages') {
+                                    result = findRemoveSync(__dirname + '/' + publicOutputDirectory, { extensions: ['.png'], ignore: 'error.png' });
+                                    console.log('Deleted the files: ' + result);
+                                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                                    res.write("Deleted files: \n" + result);
+                                    res.end();
+                                    return [2 /*return*/];
+                                }
                                 filename = path.join("./", uri);
                                 console.log('mapped filename: ' + filename);
                                 fs.exists(filename, function (exists) {
@@ -550,7 +558,6 @@ function startHttpServer() {
 }
 function runMain() {
     return __awaiter(this, void 0, void 0, function () {
-        var result;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -574,8 +581,8 @@ function runMain() {
                     _a.sent();
                     _a.label = 6;
                 case 6:
-                    result = findRemoveSync(__dirname + '/' + publicOutputDirectory, { extensions: ['.png'], ignore: 'err.png' });
-                    console.log('Deleted the files: ' + result);
+                    //delete files every hour
+                    setInterval(deletefiles, 360000);
                     return [4 /*yield*/, startHttpServer()];
                 case 7:
                     _a.sent();
@@ -585,5 +592,9 @@ function runMain() {
             }
         });
     });
+}
+function deletefiles() {
+    var result = findRemoveSync(__dirname + '/' + publicOutputDirectory, { extensions: ['.png'], ignore: 'error.png' });
+    console.log('Deleted the files: ' + result);
 }
 runMain();

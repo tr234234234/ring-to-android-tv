@@ -410,6 +410,15 @@ async function startHttpServer() {
         return;
       }
 
+      if (uri == '/deleteimages') {
+        var result = findRemoveSync(__dirname + '/' +publicOutputDirectory, {extensions: ['.png'], ignore: 'error.png'});
+        console.log('Deleted the files: ' + result);
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write(`Deleted files: \n` + result);
+        res.end();
+        return;
+      }
+  
 
       var filename = path.join("./", uri);
       console.log('mapped filename: '+filename)
@@ -456,12 +465,17 @@ async function runMain () {
     if (!(await promisify(fs.exists)(publicOutputDirectory))) {
       await promisify(fs.mkdir)(publicOutputDirectory)
     }
-    const result = findRemoveSync(__dirname + '/' +publicOutputDirectory, {extensions: ['.png'], ignore: 'error.png'});
-    console.log('Deleted the files: ' + result)
+    //delete files every hour
+    setInterval(deletefiles, 360000);
 
     await startHttpServer();
     startCameraPolling(true);
   }
+}
+
+function deletefiles() {
+  var result = findRemoveSync(__dirname + '/' +publicOutputDirectory, {extensions: ['.png'], ignore: 'error.png'});
+  console.log('Deleted the files: ' + result);
 }
 
 runMain();
