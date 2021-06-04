@@ -201,6 +201,35 @@ function getApiStatus() {
         });
     });
 }
+function postMotionEventNum() {
+    return __awaiter(this, void 0, void 0, function () {
+        var options;
+        return __generator(this, function (_a) {
+            options = {
+                method: "POST",
+                url: "http://supervisor/core/api/states/sensor.front_door_motion_events",
+                headers: {
+                    "Authorization": "Bearer " + SUPERVISOR_TOKEN,
+                    "content-type": 'application/json'
+                },
+                json: {
+                    "state": "1"
+                }
+            };
+            console.log('Updateing front door motion count...');
+            request(options, function (err, res, body) {
+                if (err) {
+                    console.log("[ERROR] Error updating front door motion event count: ");
+                    console.log(err);
+                }
+                else {
+                    console.log("Updated front door motion event count: " + body);
+                }
+            });
+            return [2 /*return*/];
+        });
+    });
+}
 function postMotionEvent() {
     return __awaiter(this, void 0, void 0, function () {
         var options;
@@ -565,7 +594,9 @@ function runMain() {
                     console.log('Missing environment variables. Check RING_REFRESH_TOKEN, RING_PORT and CAMERA_NAME are set.');
                     process.exit();
                     return [3 /*break*/, 8];
-                case 1: return [4 /*yield*/, connectToRing()];
+                case 1:
+                    postMotionEventNum();
+                    return [4 /*yield*/, connectToRing()];
                 case 2:
                     _a.sent();
                     return [4 /*yield*/, getCamera()];
