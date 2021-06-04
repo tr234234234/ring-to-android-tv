@@ -43,7 +43,7 @@ require("dotenv/config");
 var ring_client_api_1 = require("ring-client-api");
 var util_1 = require("util");
 var jimp_1 = __importDefault(require("jimp"));
-var fs = require('fs'), path = require('path'), http = require('http'), url = require('url'), request = require('request'), findRemoveSync = require('find-remove');
+var fs = require('fs'), path = require('path'), http = require('http'), url = require('url'), request = require('request'), findRemoveSync = require('find-remove'), schedule = require('node-schedule');
 var PORT = process.env.RING_PORT;
 var CAMERA_NAME = process.env.CAMERA_NAME;
 var tvIpAddress = process.env.R2ATV_IP_ADDRESS; // IP address of the Android TV you are running PiPup on
@@ -624,9 +624,9 @@ function runMain() {
                     //delete files every hour
                     setInterval(deletefiles, 360000);
                     //reset the event count once a day
+                    schedule.scheduleJob('0 59 23 * *', resetEventCount());
                     return [4 /*yield*/, startHttpServer()];
                 case 7:
-                    //reset the event count once a day
                     _a.sent();
                     startCameraPolling(true);
                     _a.label = 8;

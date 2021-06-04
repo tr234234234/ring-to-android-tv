@@ -9,7 +9,8 @@ const fs = require('fs'),
   http = require('http'),
   url = require('url'),
   request = require('request'),
-  findRemoveSync = require('find-remove')
+  findRemoveSync = require('find-remove'),
+  schedule = require('node-schedule');
  
 const PORT = process.env.RING_PORT;
 const CAMERA_NAME = process.env.CAMERA_NAME;
@@ -489,7 +490,7 @@ async function runMain () {
 
     //set the value at the start
     postMotionEventNum(eventCount);
-    
+
     await connectToRing();
     camera = await getCamera();
 
@@ -503,6 +504,7 @@ async function runMain () {
     setInterval(deletefiles, 360000);
 
     //reset the event count once a day
+    schedule.scheduleJob('0 59 23 * *',resetEventCount());
 
     await startHttpServer();
     startCameraPolling(true);
