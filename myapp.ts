@@ -517,6 +517,7 @@ function deletefiles() {
 }
 
 function resetEventCount() {
+  console.log("Reset event Count");
   eventCount = 0;
 }
 

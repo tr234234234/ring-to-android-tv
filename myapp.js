@@ -640,6 +640,7 @@ function deletefiles() {
     console.log('Deleted the files: ' + result);
 }
 function resetEventCount() {
+    console.log("Reset event Count");
     eventCount = 0;
 }
 runMain();
