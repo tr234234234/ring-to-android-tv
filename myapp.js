@@ -58,6 +58,7 @@ var camera;
 var publicOutputDirectory;
 var server;
 var lastImageFileName = "error.png";
+var eventCount = 0;
 function getCamera() {
     return __awaiter(this, void 0, void 0, function () {
         var cameras, camera, i, cameraName;
@@ -201,7 +202,7 @@ function getApiStatus() {
         });
     });
 }
-function postMotionEventNum() {
+function postMotionEventNum(eventCount) {
     return __awaiter(this, void 0, void 0, function () {
         var options;
         return __generator(this, function (_a) {
@@ -213,7 +214,7 @@ function postMotionEventNum() {
                     "content-type": 'application/json'
                 },
                 json: {
-                    "state": "1"
+                    "state": "" + eventCount
                 }
             };
             console.log('Updateing front door motion count...');
@@ -403,16 +404,23 @@ function startCameraPolling(notifyOnStart) {
                                             // Get friendly name for event happening and set notification params.
                                             switch (ding.kind) {
                                                 case "motion":
+                                                    console.log("Motion Event detected.");
                                                     if (sendMotionNotification)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                                     postMotionEvent();
+                                                    eventCount = eventCount + 1;
+                                                    postMotionEventNum(eventCount);
                                                     break;
                                                 case "ding":
+                                                    console.log("Doorbell Event detected.");
                                                     if (sendDingNotification)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                                     postDoorbellEvent();
+                                                    eventCount = eventCount + 1;
+                                                    postMotionEventNum(eventCount);
                                                     break;
                                                 default:
+                                                    console.log("Live view detected.");
                                                     if (sendLiveSteamNotification)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                             }
@@ -595,7 +603,8 @@ function runMain() {
                     process.exit();
                     return [3 /*break*/, 8];
                 case 1:
-                    postMotionEventNum();
+                    //set the value at the start
+                    postMotionEventNum(eventCount);
                     return [4 /*yield*/, connectToRing()];
                 case 2:
                     _a.sent();
@@ -614,8 +623,10 @@ function runMain() {
                 case 6:
                     //delete files every hour
                     setInterval(deletefiles, 360000);
+                    //reset the event count once a day
                     return [4 /*yield*/, startHttpServer()];
                 case 7:
+                    //reset the event count once a day
                     _a.sent();
                     startCameraPolling(true);
                     _a.label = 8;
@@ -627,5 +638,8 @@ function runMain() {
 function deletefiles() {
     var result = findRemoveSync(__dirname + '/' + publicOutputDirectory, { extensions: ['.png'], ignore: 'error.png' });
     console.log('Deleted the files: ' + result);
+}
+function resetEventCount() {
+    eventCount = 0;
 }
 runMain();

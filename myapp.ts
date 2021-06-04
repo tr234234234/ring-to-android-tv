@@ -27,6 +27,7 @@ var camera: RingCamera;
 var publicOutputDirectory: string;
 var server: any;
 var lastImageFileName = "error.png";
+var eventCount = 0;
 
 async function getCamera() {
   var cameras = await ringApi.getCameras();
@@ -146,7 +147,7 @@ console.log('Getting API status...');
 })
 }
 
-async function postMotionEventNum() {
+async function postMotionEventNum( eventCount: number) {
   const options = {
     method: "POST",
     url: "http://supervisor/core/api/states/sensor.front_door_motion_events",
@@ -155,7 +156,7 @@ async function postMotionEventNum() {
         "content-type": 'application/json'
     },
     json: {
-      "state": "1"
+      "state": `${eventCount}`
     }
 }
 console.log('Updateing front door motion count...');
@@ -321,14 +322,21 @@ async function startCameraPolling(notifyOnStart) {
                            // Get friendly name for event happening and set notification params.
                           switch(ding.kind) {
                             case "motion":
+                              console.log("Motion Event detected.");
                               if(sendMotionNotification) sendNotification(notifyTitle, notifyMessage, filename);
                               postMotionEvent();
+                              eventCount = eventCount +1;
+                              postMotionEventNum(eventCount);
                               break
                             case "ding":
+                              console.log("Doorbell Event detected.");
                               if(sendDingNotification) sendNotification(notifyTitle, notifyMessage, filename);
                               postDoorbellEvent();
+                              eventCount = eventCount +1;
+                              postMotionEventNum(eventCount);
                               break
                             default:
+                              console.log("Live view detected.");
                               if(sendLiveSteamNotification) sendNotification(notifyTitle, notifyMessage, filename);
                           }
                           //fs.copyFile(filename, "snapshot.png", (err) => {
@@ -478,8 +486,9 @@ async function runMain () {
     process.exit()
   }
   else {
-    
-    postMotionEventNum();
+
+    //set the value at the start
+    postMotionEventNum(eventCount);
     
     await connectToRing();
     camera = await getCamera();
@@ -493,6 +502,8 @@ async function runMain () {
     //delete files every hour
     setInterval(deletefiles, 360000);
 
+    //reset the event count once a day
+
     await startHttpServer();
     startCameraPolling(true);
   }
@@ -501,6 +512,10 @@ async function runMain () {
 function deletefiles() {
   var result = findRemoveSync(__dirname + '/' +publicOutputDirectory, {extensions: ['.png'], ignore: 'error.png'});
   console.log('Deleted the files: ' + result);
+}
+
+function resetEventCount() {
+  eventCount = 0;
 }
 
 runMain();
