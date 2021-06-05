@@ -59,6 +59,7 @@ var publicOutputDirectory;
 var server;
 var lastImageFileName = "error.png";
 var eventCount = 0;
+var doNotDisturb = false;
 function getCamera() {
     return __awaiter(this, void 0, void 0, function () {
         var cameras, camera, i, cameraName;
@@ -405,7 +406,7 @@ function startCameraPolling(notifyOnStart) {
                                             switch (ding.kind) {
                                                 case "motion":
                                                     console.log("Motion Event detected.");
-                                                    if (sendMotionNotification)
+                                                    if (sendMotionNotification && !doNotDisturb)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                                     postMotionEvent();
                                                     eventCount = eventCount + 1;
@@ -413,7 +414,7 @@ function startCameraPolling(notifyOnStart) {
                                                     break;
                                                 case "ding":
                                                     console.log("Doorbell Event detected.");
-                                                    if (sendDingNotification)
+                                                    if (sendDingNotification && !doNotDisturb)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                                     postDoorbellEvent();
                                                     eventCount = eventCount + 1;
@@ -421,7 +422,7 @@ function startCameraPolling(notifyOnStart) {
                                                     break;
                                                 default:
                                                     console.log("Live view detected.");
-                                                    if (sendLiveSteamNotification)
+                                                    if (sendLiveSteamNotification && !doNotDisturb)
                                                         sendNotification(notifyTitle, notifyMessage, filename);
                                             }
                                             //fs.copyFile(filename, "snapshot.png", (err) => {
@@ -553,6 +554,22 @@ function startHttpServer() {
                                     res.end();
                                     return [2 /*return*/];
                                 }
+                                if (uri == '/donotdisturbon') {
+                                    console.log('Do not disturb turned on');
+                                    doNotDisturb = true;
+                                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                                    res.write('Do not disturb set to' + doNotDisturb);
+                                    res.end();
+                                    return [2 /*return*/];
+                                }
+                                if (uri == '/donotdisturboff') {
+                                    console.log('Do not disturb turned off');
+                                    doNotDisturb = false;
+                                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                                    res.write('Do not disturb set to' + doNotDisturb);
+                                    res.end();
+                                    return [2 /*return*/];
+                                }
                                 filename = path.join("./", uri);
                                 console.log('mapped filename: ' + filename);
                                 fs.exists(filename, function (exists) {
@@ -642,5 +659,7 @@ function deletefiles() {
 function resetEventCount() {
     console.log("Reset event Count");
     eventCount = 0;
+    //set the value at the start
+    postMotionEventNum(eventCount);
 }
 runMain();

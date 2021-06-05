@@ -29,6 +29,7 @@ var publicOutputDirectory: string;
 var server: any;
 var lastImageFileName = "error.png";
 var eventCount = 0;
+var doNotDisturb = false;
 
 async function getCamera() {
   var cameras = await ringApi.getCameras();
@@ -324,21 +325,21 @@ async function startCameraPolling(notifyOnStart) {
                           switch(ding.kind) {
                             case "motion":
                               console.log("Motion Event detected.");
-                              if(sendMotionNotification) sendNotification(notifyTitle, notifyMessage, filename);
+                              if(sendMotionNotification && !doNotDisturb) sendNotification(notifyTitle, notifyMessage, filename);
                               postMotionEvent();
                               eventCount = eventCount +1;
                               postMotionEventNum(eventCount);
                               break
                             case "ding":
                               console.log("Doorbell Event detected.");
-                              if(sendDingNotification) sendNotification(notifyTitle, notifyMessage, filename);
+                              if(sendDingNotification && !doNotDisturb) sendNotification(notifyTitle, notifyMessage, filename);
                               postDoorbellEvent();
                               eventCount = eventCount +1;
                               postMotionEventNum(eventCount);
                               break
                             default:
                               console.log("Live view detected.");
-                              if(sendLiveSteamNotification) sendNotification(notifyTitle, notifyMessage, filename);
+                              if(sendLiveSteamNotification && !doNotDisturb) sendNotification(notifyTitle, notifyMessage, filename);
                           }
                           //fs.copyFile(filename, "snapshot.png", (err) => {
                           //    if (err) {
@@ -450,6 +451,24 @@ async function startHttpServer() {
         res.end();
         return;
       }
+
+      if (uri == '/donotdisturbon') {
+        console.log('Do not disturb turned on');
+        doNotDisturb = true;
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write('Do not disturb set to' + doNotDisturb);
+        res.end();
+        return;
+      }
+
+      if (uri == '/donotdisturboff') {
+        console.log('Do not disturb turned off');
+        doNotDisturb = false;
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write('Do not disturb set to' + doNotDisturb);
+        res.end();
+        return;
+      }
   
 
       var filename = path.join("./", uri);
@@ -519,6 +538,8 @@ function deletefiles() {
 function resetEventCount() {
   console.log("Reset event Count");
   eventCount = 0;
+  //set the value at the start
+  postMotionEventNum(eventCount);
 }
 
 runMain();
