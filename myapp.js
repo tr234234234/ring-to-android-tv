@@ -641,7 +641,7 @@ function runMain() {
                     //delete files every hour
                     setInterval(deletefiles, 360000);
                     //reset the event count once a day
-                    schedule.scheduleJob('0 59 23 * *', resetEventCount);
+                    schedule.scheduleJob('59 23 * * *', resetEventCount);
                     return [4 /*yield*/, startHttpServer()];
                 case 7:
                     _a.sent();

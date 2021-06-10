@@ -523,7 +523,7 @@ async function runMain () {
     setInterval(deletefiles, 360000);
 
     //reset the event count once a day
-    schedule.scheduleJob('0 59 23 * *',resetEventCount);
+    schedule.scheduleJob('59 23 * * *',resetEventCount);
 
     await startHttpServer();
     startCameraPolling(true);
